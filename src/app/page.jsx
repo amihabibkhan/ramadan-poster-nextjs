@@ -15,6 +15,7 @@ import {
   Heart,
   ExternalLink,
   Facebook,
+  MessageCircle,
   Sliders,
   ZoomIn,
   ZoomOut,
@@ -1298,7 +1299,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl border border-emerald-400/30">
+        <div className="fixed bottom-24 right-5 z-50 flex items-center gap-2.5 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl border border-emerald-400/30">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <span className="text-sm font-medium">{toastMessage}</span>
         </div>
@@ -2072,6 +2073,16 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <a
+        href={BRANDING_CONFIG.facebookUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-[#0084FF] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/40 transition hover:bg-[#0073e6]"
+      >
+        <MessageCircle className="h-5 w-5" />
+        <span>সাপোর্ট</span>
+      </a>
     </div>
   );
 }
