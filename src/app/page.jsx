@@ -874,6 +874,26 @@ function renderPosterOnCanvas(canvas, config, loadedLogoImage, targetSize = 1080
   ctx.restore();
 }
 
+// Expected first fasting day. Compared as the visitor's local calendar date.
+const RAMADAN_STARTS = [
+  new Date(2026, 1, 18),
+  new Date(2027, 1, 8),
+  new Date(2028, 0, 28)
+];
+
+function getDaysUntilNextRamadan(now = new Date()) {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let target = RAMADAN_STARTS.find((start) => start >= today);
+  if (!target) {
+    target = new Date(RAMADAN_STARTS[RAMADAN_STARTS.length - 1]);
+    while (target < today) {
+      target.setDate(target.getDate() + 354);
+    }
+  }
+  const diff = Math.round((target.getTime() - today.getTime()) / 86400000);
+  return Math.max(1, diff);
+}
+
 // ==========================================
 // 6. MAIN REACT COMPONENT
 // ==========================================
@@ -881,7 +901,7 @@ export default function App() {
   // Default brand is Innova IT (no Rose Academy or DS Islamic)
   const [brandName, setBrandName] = useState('Innova IT');
   const [selectedTemplateId, setSelectedTemplateId] = useState('noor-emerald-ring');
-  const [daysLeft, setDaysLeft] = useState(30);
+  const [daysLeft, setDaysLeft] = useState(() => getDaysUntilNextRamadan());
   const [countdownLabel, setCountdownLabel] = useState('দিন পর রমাদান...');
   const [selectedDuaId, setSelectedDuaId] = useState(1);
   const [arabicDua, setArabicDua] = useState(DUA_LIST[0].arabic);
@@ -942,6 +962,11 @@ export default function App() {
     setTimeout(() => {
       setToastMessage((prev) => (prev === msg ? null : prev));
     }, 3500);
+  }, []);
+
+  // Visitor's own calendar date, not the server clock and not a fixed 30.
+  useEffect(() => {
+    setDaysLeft(getDaysUntilNextRamadan());
   }, []);
 
   // Load Google Fonts dynamically for crisp Bangla & Arabic Canvas rendering
@@ -1256,14 +1281,7 @@ export default function App() {
   };
 
   const handleAutoCalculateToday = () => {
-    const now = new Date();
-    const candidates = [
-      new Date('2026-02-18T00:00:00'),
-      new Date('2027-02-08T00:00:00'),
-      new Date('2028-01-28T00:00:00')
-    ];
-    const nextRamadan = candidates.find((d) => d > now) || candidates[1];
-    const diffDays = Math.max(1, Math.ceil((nextRamadan - now) / (1000 * 60 * 60 * 24)));
+    const diffDays = getDaysUntilNextRamadan();
     setDaysLeft(diffDays);
     showToast(`রমাদানের সম্ভাব্য তারিখ অনুযায়ী আজ ${toBanglaNumber(diffDays)} দিন বাকি!`);
   };
@@ -1525,7 +1543,7 @@ export default function App() {
                   <input
                     type="range"
                     min="1"
-                    max="120"
+                    max="365"
                     value={daysLeft}
                     onChange={(e) => setDaysLeft(Number(e.target.value))}
                     className="flex-1 accent-emerald-500 cursor-pointer"
@@ -1807,7 +1825,7 @@ export default function App() {
                         setCroppedLogoUrl(createInnovaDefaultLogo());
                         setLogoMode('with-logo');
                         setLogoPlate('transparent');
-                        setDaysLeft(30);
+                        setDaysLeft(getDaysUntilNextRamadan());
                         showToast('ডিফল্ট সেটিংসে রিসেট করা হয়েছে!');
                       }}
                       className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 cursor-pointer"
